@@ -1,14 +1,19 @@
-let width = 20;
-let height = 20;
-let color = 5;
+// Initialize matrix parameters
+let width;
+let height;
+let color;
 
+// Generic function to create a copy of an array
 const clone = (variable) => {
   return JSON.parse(JSON.stringify(variable));
 };
 
-// generate a matrix
+// Generate a matrix
 const generateMatrix = (width, height, nbColors) => {
   const matrix = [];
+  console.log("matrix original", matrix);
+  // List of base colors to choose the number
+  //of colors when generating the matrix
   const colors = [
     "black",
     "green",
@@ -19,23 +24,26 @@ const generateMatrix = (width, height, nbColors) => {
     "cyan",
     "gray",
   ];
-  const chooseArraySlice = colors.slice(0, nbColors);
 
+  // List of colors chosen when calling the function "generateMatrix"
+  const chooseListColors = colors.slice(0, nbColors);
+
+  // Create the matrix with colors
   for (y = 0; y < height; y++) {
-    // add a new array at each iteration because matrix[j+1] does not exist
+    // add a new array at each iteration because matrix[y+1] does not exist
     if (!matrix[y]) {
       matrix[y] = [];
     }
 
     for (x = 0; x < width; x++) {
-      const colorIndex = Math.floor(Math.random() * chooseArraySlice.length);
-      matrix[y][x] = chooseArraySlice[colorIndex];
+      const colorIndex = Math.floor(Math.random() * chooseListColors.length);
+      matrix[y][x] = chooseListColors[colorIndex];
     }
   }
   return matrix;
 };
 
-// draw matrix in DOM
+// Draw matrix in DOM
 function drawMatrixDom(matrix) {
   const body = document.querySelector("body");
   const container = document.createElement("div");
@@ -56,10 +64,8 @@ function drawMatrixDom(matrix) {
 function checkPixel(matrix, x, y, area) {
   const row = matrix[y];
   const color = matrix[y][x];
-  if (!color) {
-    return 0;
-  }
 
+  // pass the cell already counted to avoid an infinite recursion loop
   matrix[y][x] = false;
   let count = 0;
 
@@ -70,12 +76,14 @@ function checkPixel(matrix, x, y, area) {
     if (rightPixel === color) {
       count++;
 
+      // Find the area that has the same color and store it in the array
       area.push({
         x: x + 1,
         y: y,
         color: color,
       });
 
+      // The function calls itself to check all pixels to the right
       count += checkPixel(matrix, x + 1, y, area);
     }
   }
@@ -91,7 +99,7 @@ function checkPixel(matrix, x, y, area) {
         y: y + 1,
         color: color,
       });
-
+      // The function calls itself to check all pixels to the bottom
       count += checkPixel(matrix, x, y + 1, area);
     }
   }
@@ -107,7 +115,7 @@ function checkPixel(matrix, x, y, area) {
         y: y,
         color: color,
       });
-
+      // The function calls itself to check all pixels to the left
       count += checkPixel(matrix, x - 1, y, area);
     }
   }
@@ -123,6 +131,8 @@ function checkPixel(matrix, x, y, area) {
         y: y - 1,
         color: color,
       });
+
+      // The function calls itself to check all pixels to the top
       count += checkPixel(matrix, x, y - 1, area);
     }
   }
@@ -130,8 +140,11 @@ function checkPixel(matrix, x, y, area) {
   return count;
 }
 
+// extract all areas withe same colors
 function findAreas(originalMatrix) {
   const matrix = clone(originalMatrix);
+  console.log("matrix dans fimdareas", matrix);
+  console.log("originalMatrix; dans fimdareas", originalMatrix);
 
   const areas = [];
   matrix.forEach((row, y) => {
@@ -147,12 +160,11 @@ function findAreas(originalMatrix) {
         color: color,
       });
 
-      let count = 1;
-      count += checkPixel(matrix, x, y, area);
+      checkPixel(matrix, x, y, area);
       areas.push(area);
     });
   });
-
+  console.log("areas", areas);
   return areas;
 }
 
@@ -173,14 +185,12 @@ function findBiggestAreas(matrix) {
       biggestAreas.push(area);
     }
   });
-
+  console.log("biggestAreas", biggestAreas);
   return biggestAreas;
 }
 
 // highlight the large areas
-function highlightArea(originalMatrix, area, color) {
-  const matrix = clone(originalMatrix);
-
+function highlightArea(matrix, area, color) {
   area.forEach((cell) => {
     matrix[cell.y][cell.x] = color;
   });
@@ -189,16 +199,6 @@ function highlightArea(originalMatrix, area, color) {
 }
 
 // highlight the large areas
-function highlightAreas(matrix, areas) {
-  let highlightedMatrix = clone(matrix);
-
-  areas.forEach((area) => {
-    highlightedMatrix = highlightArea(highlightedMatrix, area, "magenta");
-  });
-
-  return highlightedMatrix;
-}
-
 function highlightAreas(matrix, areas) {
   let highlightedMatrix = clone(matrix);
 
