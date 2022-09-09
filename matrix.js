@@ -101,18 +101,6 @@ function checkPixel(matrix, x, y, area) {
 
   // check left pixel color
   if (x > 0) {
-    // check pixel color
-    const test = (direction, x, y) => {
-      if (direction === color) {
-        area.push({
-          x: x - 1,
-          y: y,
-          color: color,
-        });
-        // The function calls itself to check all pixels to the left
-        checkPixel(matrix, x - 1, y, area);
-      }
-    };
     const leftPixel = matrix[y][x - 1];
     if (leftPixel === color) {
       area.push({
